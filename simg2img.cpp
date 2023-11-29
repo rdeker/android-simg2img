@@ -37,12 +37,30 @@ int main(int argc, char* argv[]) {
   int in;
   int out;
   int i;
+  int opt;
+  bool gz;
   struct sparse_file* s;
+
+  gz = false;
 
   if (argc < 3) {
     usage();
     exit(-1);
   }
+
+  while ((opt = getopt(argc, argv, "g")) != -1)
+  {
+    switch(opt)
+    {
+      case 'g':
+                gz = true;   
+                break;
+      default:
+                printf("No dash optins\n");
+                break;
+    }
+  }
+
 
   out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0664);
   if (out < 0) {
@@ -50,7 +68,7 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  for (i = 1; i < argc - 1; i++) {
+  for (i = optind; i < argc - 1; i++) {
     if (strcmp(argv[i], "-") == 0) {
       in = STDIN_FILENO;
     } else {
@@ -72,7 +90,7 @@ int main(int argc, char* argv[]) {
       exit(EXIT_FAILURE);
     }
 
-    if (sparse_file_write(s, out, false, false, false) < 0) {
+    if (sparse_file_write(s, out, gz, false, false) < 0) {
       fprintf(stderr, "Cannot write output file\n");
       exit(-1);
     }
